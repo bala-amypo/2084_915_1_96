@@ -2,37 +2,26 @@ package com.example.demo.controller;
 
 import com.example.demo.model.TeamCapacityConfig;
 import com.example.demo.service.TeamCapacityRuleService;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/capacity-rules")
-@Tag(name = "Team Capacity Rules")
+@RequestMapping("/api/team-capacity")
 public class TeamCapacityRuleController {
 
-    private final TeamCapacityRuleService service;
+    @Autowired
+    private TeamCapacityRuleService teamCapacityRuleService;
 
-    public TeamCapacityRuleController(TeamCapacityRuleService service) {
-        this.service = service;
-    }
-
-    // POST /api/capacity-rules
     @PostMapping
-    public TeamCapacityConfig create(@RequestBody TeamCapacityConfig rule) {
-        return service.createRule(rule);
+    public ResponseEntity<TeamCapacityConfig> createRule(@RequestBody TeamCapacityConfig rule) {
+        return ResponseEntity.ok(teamCapacityRuleService.createRule(rule));
     }
 
-    // PUT /api/capacity-rules/{id}
-    @PutMapping("/{id}")
-    public TeamCapacityConfig update(
-            @PathVariable Long id,
-            @RequestBody TeamCapacityConfig rule) {
-        return service.updateRule(id, rule);
-    }
-
-    // GET /api/capacity-rules/{teamName}
-    @GetMapping("/{teamName}")
-    public TeamCapacityConfig getByTeam(@PathVariable String teamName) {
-        return service.getRuleByTeam(teamName);
+    @GetMapping
+    public ResponseEntity<List<TeamCapacityConfig>> getAllRules() {
+        return ResponseEntity.ok(teamCapacityRuleService.getAllRules());
     }
 }

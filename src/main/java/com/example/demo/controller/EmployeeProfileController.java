@@ -2,43 +2,32 @@ package com.example.demo.controller;
 
 import com.example.demo.model.EmployeeProfile;
 import com.example.demo.service.EmployeeProfileService;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/employees")
-@Tag(name = "Employee Management")
 public class EmployeeProfileController {
 
-    private final EmployeeProfileService service;
+    @Autowired
+    private EmployeeProfileService employeeProfileService;
 
-    public EmployeeProfileController(EmployeeProfileService service) {
-        this.service = service;
-    }
-
-    // POST /api/employees
     @PostMapping
-    public EmployeeProfile createEmployee(@RequestBody EmployeeProfile employee) {
-        return service.create(employee);
+    public ResponseEntity<EmployeeProfile> createEmployee(@RequestBody EmployeeProfile employee) {
+        EmployeeProfile saved = employeeProfileService.createEmployee(employee);
+        return ResponseEntity.ok(saved);
     }
 
-    // GET /api/employees/{id}
-    @GetMapping("/{id}")
-    public EmployeeProfile getById(@PathVariable Long id) {
-        return service.getById(id);
-    }
-
-    // GET /api/employees/team/{teamName}
-    @GetMapping("/team/{teamName}")
-    public List<EmployeeProfile> getByTeam(@PathVariable String teamName) {
-        return service.getByTeam(teamName);
-    }
-
-    // GET /api/employees
     @GetMapping
-    public List<EmployeeProfile> getAll() {
-        return service.getAll();
+    public ResponseEntity<List<EmployeeProfile>> getAllEmployees() {
+        return ResponseEntity.ok(employeeProfileService.getAllEmployees());
+    }
+
+    @GetMapping("/team/{teamName}")
+    public ResponseEntity<List<EmployeeProfile>> getByTeam(@PathVariable String teamName) {
+        return ResponseEntity.ok(employeeProfileService.getEmployeesByTeam(teamName));
     }
 }
