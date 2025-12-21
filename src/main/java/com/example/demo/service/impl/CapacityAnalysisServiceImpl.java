@@ -1,11 +1,14 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.CapacityAnalysisResultDto;
+import com.example.demo.model.EmployeeProfile;
 import com.example.demo.model.LeaveRequest;
 import com.example.demo.model.TeamCapacityConfig;
+import com.example.demo.repository.EmployeeProfileRepository;
 import com.example.demo.repository.LeaveRequestRepository;
 import com.example.demo.repository.TeamCapacityConfigRepository;
 import com.example.demo.service.CapacityAnalysisService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -16,48 +19,50 @@ import java.util.Map;
 @Service
 public class CapacityAnalysisServiceImpl implements CapacityAnalysisService {
 
-    private final LeaveRequestRepository leaveRepository;
-    private final TeamCapacityConfigRepository configRepository;
+    @Autowired
+    private TeamCapacityConfigRepository teamRepo;
 
-    public CapacityAnalysisServiceImpl(
-            LeaveRequestRepository leaveRepository,
-            TeamCapacityConfigRepository configRepository) {
-        this.leaveRepository = leaveRepository;
-        this.configRepository = configRepository;
-    }
+    @Autowired
+    private EmployeeProfileRepository employeeRepo;
+
+    @Autowired
+    private LeaveRequestRepository leaveRepo;
 
     @Override
-    public CapacityAnalysisResultDto analyzeTeamCapacity(
-            String teamName,
-            LocalDate start,
-            LocalDate end) {
+    public CapacityAnalysisResultDto analyzeCapacity(String teamName) {
 
-        TeamCapacityConfig config = configRepository.findByTeamName(teamName);
-        if (config == null) {
-            throw new RuntimeException("Capacity config not found");
+        List<EmployeeProfile> teamMembers = employeeRepo.findByTeamName(teamName);
+        int totalMembers = teamMembers.size();
+
+        Map<LocalDate, Double> dailyCapacity = new HashMap<>();
+        boolean capacityRisk = false;
+
+        List<LeaveRequest> leaves = leaveRepo.findAll();
+
+        for (EmployeeProfile emp : teamMembers) {
+            for (LeaveRequest leave : leaves) {
+                if (leave.getStatus().equals("APPROVED") && leave.getEmployee().getId().equals(emp.getId())) {
+                    LocalDate start = leave.getStartDate();
+                    LocalDate end = leave.getEndDate();
+                    while (!start.isAfter(end)) {
+                        dailyCapacity.put(start, dailyCapacity.getOrDefault(start, (double) totalMembers) - 1);
+                        start = start.plusDays(1);
+                    }
+                }
+            }
         }
 
-        List<LeaveRequest> leaves =
-                leaveRepository.findApprovedOverlappingForTeam(teamName, start, end);
-
-        Map<LocalDate, Double> capacityByDate = new HashMap<>();
-
-        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
-            long onLeave = leaves.stream()
-                    .filter(l -> !date.isBefore(l.getStartDate())
-                            && !date.isAfter(l.getEndDate()))
-                    .count();
-
-            double available =
-                    ((double) (config.getTotalHeadcount() - onLeave)
-                            / config.getTotalHeadcount()) * 100;
-
-            capacityByDate.put(date, available);
+        TeamCapacityConfig config = teamRepo.findByTeamName(teamName).orElse(null);
+        if (config != null) {
+            for (Double cap : dailyCapacity.values()) {
+                double percent = (cap / totalMembers) * 100;
+                if (percent < config.getMinCapacityPercent()) {
+                    capacityRisk = true;
+                    break;
+                }
+            }
         }
 
-        boolean risky = capacityByDate.values().stream()
-                .anyMatch(v -> v < config.getMinCapacityPercent());
-
-        return new CapacityAnalysisResultDto(risky, capacityByDate);
+        return new CapacityAnalysisResultDto(capacityRisk, dailyCapacity);
     }
 }
