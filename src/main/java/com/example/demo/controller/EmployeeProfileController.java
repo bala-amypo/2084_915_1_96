@@ -17,8 +17,7 @@ public class EmployeeProfileController {
 
     @PostMapping
     public ResponseEntity<EmployeeProfile> createEmployee(@RequestBody EmployeeProfile employee) {
-        EmployeeProfile saved = employeeProfileService.createEmployee(employee);
-        return ResponseEntity.ok(saved);
+        return ResponseEntity.ok(employeeProfileService.createEmployee(employee));
     }
 
     @GetMapping
@@ -27,7 +26,7 @@ public class EmployeeProfileController {
     }
 
     @GetMapping("/team/{teamName}")
-    public ResponseEntity<List<EmployeeProfile>> getByTeam(@PathVariable String teamName) {
+    public ResponseEntity<List<EmployeeProfile>> getEmployeesByTeam(@PathVariable String teamName) {
         return ResponseEntity.ok(employeeProfileService.getEmployeesByTeam(teamName));
     }
 }
