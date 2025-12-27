@@ -1,8 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.LeaveRequest;
+import com.example.demo.dto.LeaveRequestDto;
 import com.example.demo.service.LeaveRequestService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,27 +10,34 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/leaves")
 public class LeaveRequestController {
-
-    @Autowired
-    private LeaveRequestService leaveRequestService;
-
+    
+    private final LeaveRequestService leaveRequestService;
+    
+    public LeaveRequestController(LeaveRequestService leaveRequestService) {
+        this.leaveRequestService = leaveRequestService;
+    }
+    
     @PostMapping
-    public ResponseEntity<LeaveRequest> applyLeave(@RequestBody LeaveRequest leave) {
-        return ResponseEntity.ok(leaveRequestService.applyLeave(leave));
+    public ResponseEntity<LeaveRequestDto> create(@RequestBody LeaveRequestDto dto) {
+        LeaveRequestDto created = leaveRequestService.create(dto);
+        return ResponseEntity.ok(created);
     }
-
-    @GetMapping
-    public ResponseEntity<List<LeaveRequest>> getAllLeaves() {
-        return ResponseEntity.ok(leaveRequestService.getAllLeaves());
-    }
-
+    
     @PutMapping("/{id}/approve")
-    public ResponseEntity<LeaveRequest> approveLeave(@PathVariable Long id) {
-        return ResponseEntity.ok(leaveRequestService.approveLeave(id));
+    public ResponseEntity<LeaveRequestDto> approve(@PathVariable Long id) {
+        LeaveRequestDto approved = leaveRequestService.approve(id);
+        return ResponseEntity.ok(approved);
     }
-
+    
     @PutMapping("/{id}/reject")
-    public ResponseEntity<LeaveRequest> rejectLeave(@PathVariable Long id) {
-        return ResponseEntity.ok(leaveRequestService.rejectLeave(id));
+    public ResponseEntity<LeaveRequestDto> reject(@PathVariable Long id) {
+        LeaveRequestDto rejected = leaveRequestService.reject(id);
+        return ResponseEntity.ok(rejected);
+    }
+    
+    @GetMapping("/employee/{id}")
+    public ResponseEntity<List<LeaveRequestDto>> getByEmployee(@PathVariable Long id) {
+        List<LeaveRequestDto> leaves = leaveRequestService.getByEmployee(id);
+        return ResponseEntity.ok(leaves);
     }
 }

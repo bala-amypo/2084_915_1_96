@@ -4,32 +4,19 @@ import java.time.LocalDate;
 import java.util.Map;
 
 public class CapacityAnalysisResultDto {
-
-    private boolean capacityRisk;
-    private Map<LocalDate, Double> dailyCapacity;
-
-    public CapacityAnalysisResultDto() {
+    private boolean risky;
+    private Map<LocalDate, Double> capacityByDate;
+    
+    public CapacityAnalysisResultDto() {}
+    
+    public CapacityAnalysisResultDto(boolean risky, Map<LocalDate, Double> capacityByDate) {
+        this.risky = risky;
+        this.capacityByDate = capacityByDate;
     }
-
-    public CapacityAnalysisResultDto(boolean capacityRisk, Map<LocalDate, Double> dailyCapacity) {
-        this.capacityRisk = capacityRisk;
-        this.dailyCapacity = dailyCapacity;
-    }
-
-    // Getters and Setters
-    public boolean isCapacityRisk() {
-        return capacityRisk;
-    }
-
-    public void setCapacityRisk(boolean capacityRisk) {
-        this.capacityRisk = capacityRisk;
-    }
-
-    public Map<LocalDate, Double> getDailyCapacity() {
-        return dailyCapacity;
-    }
-
-    public void setDailyCapacity(Map<LocalDate, Double> dailyCapacity) {
-        this.dailyCapacity = dailyCapacity;
-    }
+    
+    public boolean isRisky() { return risky; }
+    public void setRisky(boolean risky) { this.risky = risky; }
+    
+    public Map<LocalDate, Double> getCapacityByDate() { return capacityByDate; }
+    public void setCapacityByDate(Map<LocalDate, Double> capacityByDate) { this.capacityByDate = capacityByDate; }
 }
