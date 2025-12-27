@@ -4,6 +4,5 @@ import com.example.demo.dto.AuthRequest;
 import com.example.demo.dto.AuthResponse;
 
 public interface AuthService {
-
-    AuthResponse login(AuthRequest request);
+    AuthResponse authenticate(AuthRequest request);
 }
