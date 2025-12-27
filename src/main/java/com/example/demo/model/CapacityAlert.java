@@ -4,29 +4,46 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "capacity_alerts")
 public class CapacityAlert {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
+    @Column(nullable = false)
     private String teamName;
+    
+    @Column(nullable = false)
     private LocalDate date;
-    private Double availableCapacity;
-
+    
+    private String severity;
+    
+    private String message;
+    
+    // Constructors
     public CapacityAlert() {}
-
-    public CapacityAlert(String teamName, LocalDate date, Double availableCapacity) {
+    
+    public CapacityAlert(String teamName, LocalDate date, String severity, String message) {
         this.teamName = teamName;
         this.date = date;
-        this.availableCapacity = availableCapacity;
+        this.severity = severity;
+        this.message = message;
     }
-
+    
+    // Getters and Setters
     public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    
     public String getTeamName() { return teamName; }
     public void setTeamName(String teamName) { this.teamName = teamName; }
+    
     public LocalDate getDate() { return date; }
     public void setDate(LocalDate date) { this.date = date; }
-    public Double getAvailableCapacity() { return availableCapacity; }
-    public void setAvailableCapacity(Double availableCapacity) { this.availableCapacity = availableCapacity; }
+    
+    public String getSeverity() { return severity; }
+    public void setSeverity(String severity) { this.severity = severity; }
+    
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
 }
